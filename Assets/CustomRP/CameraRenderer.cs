@@ -1,10 +1,7 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class CameraRenderer {
+public partial class CameraRenderer {
 
     private ScriptableRenderContext context;
     private Camera camera;
@@ -19,16 +16,6 @@ public class CameraRenderer {
 
     private static ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
 
-    private static ShaderTagId[] legacyShaderTagIds = {
-        new ShaderTagId("Always"),
-        new ShaderTagId("ForwardBase"),
-        new ShaderTagId("PrepassBase"),
-        new ShaderTagId("Vertex"),
-        new ShaderTagId("VertexLMRGBM"),
-        new ShaderTagId("VertexLM")
-    };
-
-    private static Material errorMaterial;
 
     public void Render(ScriptableRenderContext context, Camera camera) {
         this.context = context;
@@ -65,22 +52,6 @@ public class CameraRenderer {
         sortingSettings.criteria = SortingCriteria.CommonTransparent;
         drawingSettings.sortingSettings = sortingSettings;
         filteringSettings.renderQueueRange = RenderQueueRange.transparent;
-
-        context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
-    }
-
-    private void DrawUnsupportedShaders() {
-        if (errorMaterial == null) {
-            errorMaterial = new Material(Shader.Find("Hidden/InternalErrorShader"));
-        }
-
-        var drawingSettings = new DrawingSettings(legacyShaderTagIds[0], new SortingSettings(camera)) { 
-            overrideMaterial = errorMaterial,
-        };
-        for (int i = 1; i < legacyShaderTagIds.Length; i++) {
-            drawingSettings.SetShaderPassName(i, legacyShaderTagIds[i]);
-        }
-        var filteringSettings = FilteringSettings.defaultValue;
 
         context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
     }
